@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>10초 맞추기 게임</title>
+<link rel="icon" type="image/x-icon" href="./logo.png">
+
+<style>
+    body {
+        margin: 0;
+        background: #111;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: 'Pretendard', sans-serif;
+    }
+
+    .timer-wrap {
+        display: flex;
+        gap: 10px;
+    }
+
+    .digit {
+        width: 160px;
+        height: 240px;
+        background: #222;
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 160px;
+        font-weight: bold;
+    }
+
+    .dot {
+        width: 80px;
+        height: 240px;
+        font-size: 160px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .msg {
+        font-size: 32px;
+        margin-top: 30px;
+        height: 60px;
+        color: #868686;
+    }
+    #title{
+        font-size: 50px;
+        margin-bottom: 50px;
+    }
+    button {
+        margin-top: 100px;
+        padding: 20px 50px;
+        font-size: 40px;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        background: #ffffff22;
+        color: white;
+        transition: background 0.2s;
+    }
+
+    button:hover {
+        background: #ffffff44;
+    }
+</style>
+</head>
+<body>
+
+<h1 id="title">10초에 멈춰라!</h1>
+
+<div class="timer-wrap">
+    <div class="digit" id="d1">0</div>
+    <div class="digit" id="d2">0</div>
+    <div class="dot">.</div>
+    <div class="digit" id="d3">0</div>
+    <div class="digit" id="d4">0</div>
+</div>
+
+<div class="msg" id="msg">ENTER 키를 눌러 시작하세요</div>
+
+<button id="resetBtn">RESET</button>
+
+<script>
+    // --------------------------
+    // 🔊 BGM 설정
+    // --------------------------
+    let bgm = new Audio('./sound/bgm.mp3');
+    bgm.loop = true;
+    bgm.volume = 0.5;
+
+    let isRunning = false;
+    let startTime = 0;
+    let timerInterval = null;
+
+    const d1 = document.getElementById("d1");
+    const d2 = document.getElementById("d2");
+    const d3 = document.getElementById("d3");
+    const d4 = document.getElementById("d4");
+
+    const msgEl = document.getElementById("msg");
+    const resetBtn = document.getElementById("resetBtn");
+
+    // 각 자리 숫자 업데이트
+    function updateDigits(t) {
+        let str = t.toFixed(2).padStart(5, "0"); 
+        d1.textContent = str[0];
+        d2.textContent = str[1];
+        d3.textContent = str[3];
+        d4.textContent = str[4];
+    }
+
+    // 스톱워치 업데이트
+    function updateTimer() {
+        const now = performance.now();
+        const diff = (now - startTime) / 1000;
+        updateDigits(diff);
+    }
+
+    // --------------------------
+    // ⌨ ENTER로 시작/정지
+    // --------------------------
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            if (!isRunning) {
+                // 시작
+                isRunning = true;
+
+                // 🔊 BGM 재생
+                bgm.currentTime = 0;
+                bgm.play().catch(() => {});
+
+                msgEl.textContent = "멈추려면 ENTER 누르기";
+                startTime = performance.now();
+                timerInterval = setInterval(updateTimer, 10);
+
+            } else {
+                // 멈춤
+                isRunning = false;
+                clearInterval(timerInterval);
+
+                // 🔊 BGM 정지
+                bgm.pause();
+
+                const now = performance.now();
+                const final = (now - startTime) / 1000;
+                const diff = Math.abs(final - 10);
+
+                if (diff < 0.05) {
+                    msgEl.textContent = `🎉 성공! (${final.toFixed(2)}초)`;
+                } else {
+                    msgEl.textContent = `😅 실패… (${final.toFixed(2)}초)`;
+                }
+            }
+        }
+    });
+
+    // --------------------------
+    // 🔄 RESET 버튼
+    // --------------------------
+    resetBtn.addEventListener("click", () => {
+        clearInterval(timerInterval);
+        isRunning = false;
+
+        // 🔊 BGM 초기화
+        bgm.pause();
+        bgm.currentTime = 0;
+
+        updateDigits(0);
+        msgEl.textContent = "ENTER 키를 눌러 시작하세요";
+    });
+
+    updateDigits(0);
+</script>
+
+</body>
+</html>
