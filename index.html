@@ -53,24 +53,10 @@
         height: 60px;
         color: #868686;
     }
+
     #title{
         font-size: 50px;
         margin-bottom: 50px;
-    }
-    button {
-        margin-top: 100px;
-        padding: 20px 50px;
-        font-size: 40px;
-        border: none;
-        border-radius: 15px;
-        cursor: pointer;
-        background: #ffffff22;
-        color: white;
-        transition: background 0.2s;
-    }
-
-    button:hover {
-        background: #ffffff44;
     }
 </style>
 </head>
@@ -87,8 +73,6 @@
 </div>
 
 <div class="msg" id="msg">ENTER 키를 눌러 시작하세요</div>
-
-<button id="resetBtn">RESET</button>
 
 <script>
     // --------------------------
@@ -108,7 +92,6 @@
     const d4 = document.getElementById("d4");
 
     const msgEl = document.getElementById("msg");
-    const resetBtn = document.getElementById("resetBtn");
 
     // 각 자리 숫자 업데이트
     function updateDigits(t) {
@@ -160,25 +143,18 @@
                 } else {
                     msgEl.textContent = `😅 실패… (${final.toFixed(2)}초)`;
                 }
+
+                // --------------------------
+                // ⏳ 게임 종료 후 5초 뒤 메인 이동
+                // --------------------------
+                setTimeout(() => {
+                    window.location.href = "index.html";   // ← 원하는 페이지로 변경 가능
+                }, 5000);
             }
         }
     });
 
-    // --------------------------
-    // 🔄 RESET 버튼
-    // --------------------------
-    resetBtn.addEventListener("click", () => {
-        clearInterval(timerInterval);
-        isRunning = false;
-
-        // 🔊 BGM 초기화
-        bgm.pause();
-        bgm.currentTime = 0;
-
-        updateDigits(0);
-        msgEl.textContent = "ENTER 키를 눌러 시작하세요";
-    });
-
+    // 초기 값
     updateDigits(0);
 </script>
 
